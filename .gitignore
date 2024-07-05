@@ -5,7 +5,7 @@
 *.dylib
 
 # Ignore go binaries
-/bin/
+#/bin/
 /pkg/
 /vendor/
 
@@ -21,7 +21,7 @@ Thumbs.db
 
 # Ignore go build output
 /build/
-/bin/
+#/bin/
 /pkg/
 
 # Ignore environment files
