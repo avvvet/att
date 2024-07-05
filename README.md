@@ -17,6 +17,10 @@ Run `att -e <key>`. All your files will be encrypted immediately.
 
 To decrypt your files, run `att -d <key>`. All your previously encrypted files will be decrypted.
 
+## build 
+
+To build the `att` binary yourself, `run make run`. This will build the `att` binary and place it in the /bin folder.
+
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for details.
