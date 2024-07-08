@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-const version = "1.0.1"
+const version = "1.0.2"
 
 func genRand32ByteKey() ([]byte, error) {
 	key := make([]byte, 32)
