@@ -9,8 +9,10 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -25,7 +27,9 @@ func genRand32ByteKey() ([]byte, error) {
 
 	return key, nil
 }
+
 func main() {
+
 	encKey := flag.String("e", "", "secret key for encryption (32 byte hex)")
 	decKey := flag.String("d", "", "secret key for decryption (32 byte hex)")
 	genHexKey := flag.Bool("k", false, "🔑 generates new random 32 byte hex. Warn keep it external and private")
@@ -59,8 +63,16 @@ func main() {
 
 	if *encKey != "" {
 		enc(*encKey, ".")
+		if runtime.GOOS == "linux" {
+			cmd := exec.Command("notify-send", "-i", "info", "att", "encryption completed 🔑")
+			cmd.Run()
+		}
 	} else if *decKey != "" {
 		dec(*decKey, ".")
+		if runtime.GOOS == "linux" {
+			cmd := exec.Command("notify-send", "-i", "info", "att", "decryption completed 🔒")
+			cmd.Run()
+		}
 	} else {
 		fmt.Println("Error: You must provide either -e <key> for encryption or -d <key> for decryption")
 		flag.PrintDefaults()
