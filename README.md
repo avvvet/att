@@ -4,6 +4,10 @@ Your immediate encryption and decryption tool. How does it work? You run this bi
 
 ![alt text](image.png)
 
+## Commands 
+
+![alt text](image-1.png)
+
 ## First!!
 
 You need to generate a random 32-byte key and keep it external and private. (Warning: make sure to keep it safe, perhaps email it to yourself).
