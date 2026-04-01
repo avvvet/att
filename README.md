@@ -2,6 +2,8 @@
 
 Your immediate encryption and decryption tool. How does it work? You run this binary in any folder, and immediately all files inside that folder will be encrypted.
 
+![alt text](image.png)
+
 ## First!!
 
 You need to generate a random 32-byte key and keep it external and private. (Warning: make sure to keep it safe, perhaps email it to yourself).
