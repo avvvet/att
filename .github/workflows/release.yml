@@ -1,0 +1,82 @@
+name: Release
+
+# Triggers ONLY when you push a version tag like v2.0.0
+# Normal commits and PRs are completely ignored by this workflow
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Build and publish release
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write   # needed to create the GitHub Release and upload assets
+
+    steps:
+
+      # 1. Check out your source code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Install Go (matches the version you developed with)
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      # 3. Build binaries for every platform
+      #    -s strips symbol table  -w strips DWARF debug info
+      #    both reduce binary size with no runtime effect
+      - name: Build binaries
+        run: |
+          mkdir -p dist
+
+          build() {
+            local os=$1 arch=$2
+            local name="att-${os}-${arch}"
+            [ "$os" = "windows" ] && name="${name}.exe"
+            echo "  → building $name"
+            GOOS=$os GOARCH=$arch go build \
+              -ldflags="-s -w -X main.version=${GITHUB_REF_NAME}" \
+              -o "dist/$name" \
+              ./main.go
+          }
+
+          build linux  amd64
+          build linux  arm64
+          build darwin amd64
+          build darwin arm64
+          build windows amd64
+
+          echo ""
+          echo "Built:"
+          ls -lh dist/
+
+      # 4. Generate SHA-256 checksums for every binary
+      #    Users run: sha256sum -c checksums.txt   to verify their download
+      - name: Generate checksums
+        run: |
+          cd dist
+          sha256sum att-* > checksums.txt
+          echo ""
+          echo "Checksums:"
+          cat checksums.txt
+
+      # 5. Create the GitHub Release and upload all assets
+      #    The tag name (e.g. v2.0.0) becomes the release title
+      #    Release notes are auto-generated from commits since the last tag
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "att ${{ github.ref_name }}"
+          generate_release_notes: true
+          files: |
+            dist/att-linux-amd64
+            dist/att-linux-arm64
+            dist/att-darwin-amd64
+            dist/att-darwin-arm64
+            dist/att-windows-amd64.exe
+            dist/checksums.txt
