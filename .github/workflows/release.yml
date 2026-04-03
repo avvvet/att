@@ -26,6 +26,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.22'
+          cache: false   # no go.sum — stdlib only, nothing to cache
 
       # 3. Build binaries for every platform
       #    -s strips symbol table  -w strips DWARF debug info
@@ -42,7 +43,7 @@ jobs:
             GOOS=$os GOARCH=$arch go build \
               -ldflags="-s -w -X main.version=${GITHUB_REF_NAME}" \
               -o "dist/$name" \
-              ./main.go
+              ./cmd/att/main.go
           }
 
           build linux  amd64
